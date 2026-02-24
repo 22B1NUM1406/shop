@@ -3,16 +3,7 @@ import { useToast } from "../context/ToastContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-const MOCK_ORDERS = [
-    { _id: "o1", name: "Болд Гантулга", phone: "99001122", address: "Сүхбаатар дүүрэг", productName: "Ногоон Цай Шам", delivery: "express", createdAt: new Date().toISOString() },
-    { _id: "o2", name: "Нарантуяа Дорж", phone: "88223344", address: "Хан-Уул дүүрэг", productName: "Ceramic Аяга", delivery: "daily", createdAt: new Date(Date.now() - 3600000).toISOString() },
-    { _id: "o3", name: "Энхтуяа Батсүх", phone: "99887766", address: "Баянзүрх дүүрэг", productName: "Хөвөн Хүрэм", delivery: "express", createdAt: new Date(Date.now() - 7200000).toISOString() },
-];
 
-const MOCK_PRODUCTS = [
-    { _id: "1", name: "Ногоон Цай Шам", price: 45000, description: "Жинхэнэ Японы ногоон цай.", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=200&q=80" },
-    { _id: "2", name: "Хавтгай Дэвтэр Set", price: 32000, description: "Өндөр чанарын дэвтэр.", image: "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=200&q=80" },
-];
 
 function Modal({ title, children, onClose }) {
     return (
@@ -59,10 +50,10 @@ export default function AdminDashboard({ onLogout }) {
         setLoadingOrders(true);
         try {
             const res = await fetch(`${API_URL}/api/orders`, { headers: authHeaders });
-            if (!res.ok) throw new Error();
-            setOrders(await res.json());
-        } catch {
-            setOrders(MOCK_ORDERS);
+            const data = await res.json();
+            if (data.success) setOrders(data.data);
+        } catch (err) {
+            console.error("Orders fetch error:", err);
         } finally {
             setLoadingOrders(false);
         }
@@ -72,10 +63,10 @@ export default function AdminDashboard({ onLogout }) {
         setLoadingProducts(true);
         try {
             const res = await fetch(`${API_URL}/api/products`);
-            if (!res.ok) throw new Error();
-            setProducts(await res.json());
-        } catch {
-            setProducts(MOCK_PRODUCTS);
+            const data = await res.json();
+            if (data.success) setProducts(data.data);
+        } catch (err) {
+            console.error("Products fetch error:", err);
         } finally {
             setLoadingProducts(false);
         }

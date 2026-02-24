@@ -32,35 +32,30 @@ export default function OrderModal({ product, onClose, onSuccess }) {
         if (Object.keys(e).length) { setErrors(e); return; }
         setLoading(true);
         try {
-            // Try real API, fall back to mock
-            let orderNum;
-            try {
-                const res = await fetch(`${API_URL}/api/orders`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ ...form, productId: product._id, productName: product.name, price: product.price }),
-                });
-                if (!res.ok) throw new Error();
-                const data = await res.json();
-                orderNum = data.orderNumber;
-            } catch {
-                // Mock success
-                orderNum = "ORD-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-            }
+            const res = await fetch(`${API_URL}/api/orders`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ...form,
+                    productId: product._id,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || "Алдаа гарлаа");
 
             onSuccess({
-                orderNumber: orderNum,
-                bankName: "Хаан банк",
-                accountName: " Fast Line LLC",
-                accountNumber: "5043****8821",
-                amount: product.price,
-                reference: orderNum,
+                orderNumber: data.orderNumber,
+                bankName: data.payment.bankName,
+                accountName: data.payment.accountName,
+                accountNumber: data.payment.accountNumber,
+                amount: data.payment.amount,
+                reference: data.payment.reference,
                 product: product.name,
                 delivery: form.delivery === "express" ? "Шуурхай хүргэлт" : "Өдөр бүрийн 10:00",
             });
             addToast("Захиалга амжилттай илгээгдлээ!", "success");
-        } catch {
-            addToast("Алдаа гарлаа. Дахин оролдоно уу.", "error");
+        } catch (err) {
+            addToast(err.message || "Алдаа гарлаа. Дахин оролдоно уу.", "error");
         } finally {
             setLoading(false);
         }

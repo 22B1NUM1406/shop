@@ -1,64 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-// Mock products - replace API_URL with your backend
-const MOCK_PRODUCTS = [
-    {
-        _id: "1",
-        name: "Ногоон Цай Шам",
-        price: 45000,
-        description: "Жинхэнэ Японы ногоон цай. Антиоксидантаар баялаг, эрүүл мэндэд тустай.",
-        image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&q=80",
-    },
-    {
-        _id: "2",
-        name: "Хавтгай Дэвтэр Set",
-        price: 32000,
-        description: "Өндөр чанарын A5 хэмжээний хавтгай дэвтэр, 5 өнгийн бал пентэй иркэм.",
-        image: "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400&q=80",
-    },
-    {
-        _id: "3",
-        name: "Ceramic Аяга",
-        price: 28000,
-        description: "Гар урлалын керамик аяга. Өнгө тогтвортой, дулаан хадгалах чанар сайтай.",
-        image: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=400&q=80",
-    },
-    {
-        _id: "4",
-        name: "Аромат Лаа",
-        price: 55000,
-        description: "Байгалийн лавандр үнэрт гар хийцийн лаа. 40 цагийн турш шатна.",
-        image: "https://images.unsplash.com/photo-1602607144090-ef1d3c47c0af?w=400&q=80",
-    },
-    {
-        _id: "5",
-        name: "Хөвөн Хүрэм",
-        price: 120000,
-        description: "100% органик хөвөн материалаар хийсэн тав тухтай хүрэм. Бүх улиралд тохиромжтой.",
-        image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=400&q=80",
-    },
-    {
-        _id: "6",
-        name: "Дэлхийн Газрын зураг",
-        price: 75000,
-        description: "Хананы чимэглэлийн том хэмжээний дэлхийн газрын зураг. 100x60cm.",
-        image: "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=400&q=80",
-    },
-    {
-        _id: "7",
-        name: "Модон Тавиур",
-        price: 95000,
-        description: "Байгалийн модоор хийсэн гэр зохион байгуулалтын тавиур. 3 давхар.",
-        image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80",
-    },
-    {
-        _id: "8",
-        name: "Ухаалаг Гэрэл",
-        price: 65000,
-        description: "RGB өнгийн LED гэрэл, утасны апп-аар удирддаг. 16 сая өнгийн тохируулга.",
-        image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80",
-    },
-];
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 function SkeletonCard() {
     return (
@@ -122,12 +64,20 @@ export default function ProductGrid({ onViewProduct, onBuyProduct }) {
     const cardRefs = useRef([]);
 
     useEffect(() => {
-        // Simulate API call
-        const timer = setTimeout(() => {
-            setProducts(MOCK_PRODUCTS);
-            setLoading(false);
-        }, 1200);
-        return () => clearTimeout(timer);
+        const fetchProducts = async () => {
+            try {
+                const res = await fetch(`${API_URL}/api/products`);
+                const data = await res.json();
+                if (data.success) {
+                    setProducts(data.data);
+                }
+            } catch (err) {
+                console.error('Бүтээгдэхүүн татахад алдаа:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProducts();
     }, []);
 
     useEffect(() => {
